@@ -1,0 +1,18 @@
+#!/bin/sh
+# Refuses any commit that contains something that looks like a secret.
+# Enabled with: git config core.hooksPath .githooks
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "pre-commit: gitleaks isn't installed (brew install gitleaks). Refusing to commit without a secret scan." >&2
+  exit 1
+fi
+
+# Files that hold credentials never belong in this repo, whatever they contain.
+blocked=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '(^|/)(\.clasprc\.json|\.env(\..*)?|[^/]*credentials[^/]*|[^/]*\.(pem|key|p12|pfx))$')
+if [ -n "$blocked" ]; then
+  echo "pre-commit: refusing to commit credential files:" >&2
+  echo "$blocked" >&2
+  exit 1
+fi
+
+exec gitleaks git --pre-commit --staged --redact --no-banner --config .gitleaks.toml .

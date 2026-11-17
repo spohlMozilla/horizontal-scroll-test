@@ -1,0 +1,18 @@
+# gitleaks's built-in rules plus the credentials this project deals with.
+[extend]
+useDefault = true
+
+[[rules]]
+id = "jira-token-assignment"
+description = "A value assigned to JIRA_TOKEN"
+regex = '''JIRA_TOKEN['"]?\s*[:=,]\s*['"][^'"\s]{8,}['"]'''
+
+[[rules]]
+id = "bugzilla-api-key"
+description = "A Bugzilla API key next to its name"
+regex = '''(?i)(bugzilla|bmo)[\w-]{0,20}(api[_-]?key|token)['"]?\s*[:=,]\s*['"]?[A-Za-z0-9]{40}'''
+
+[[rules]]
+id = "phabricator-api-token"
+description = "A Phabricator Conduit token"
+regex = '''api-[a-z0-9]{28}'''
